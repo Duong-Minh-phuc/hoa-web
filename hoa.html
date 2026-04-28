@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Quản lý hoa</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f3f0f7;
+    padding: 20px;
+}
+
+/* BOX */
+.container {
+    background: #e9dff3;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+/* INPUT */
+input {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    margin: 5px;
+}
+
+/* GRID */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+/* CARD */
+.card {
+    background: #d8c8ea;
+    padding: 10px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.card img {
+    width: 60px;
+    height: 60px;
+    margin: 0 10px;
+}
+
+/* DELETE BUTTON */
+.delete {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    cursor: pointer;
+    color: red;
+    font-weight: bold;
+}
+
+/* BUTTON */
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 10px;
+    background: #7b4cff;
+    color: white;
+    cursor: pointer;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    margin-top: 30px;
+    border-collapse: collapse;
+    background: #111;
+    color: white;
+}
+
+td, th {
+    border: 1px solid #444;
+    padding: 10px;
+    text-align: center;
+}
+
+.flower-item {
+    display: inline-block;
+    margin: 5px;
+}
+
+.flower-item img {
+    width: 50px;
+    height: 50px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🌷 Nhập hoa cho ACC</h2>
+
+<input type="text" id="acc" placeholder="Tên ACC">
+
+<hr>
+
+<h3>➕ Thêm hoa mới</h3>
+<input type="text" id="newName" placeholder="Tên hoa">
+<input type="file" id="newImg">
+<button onclick="addFlower()">Thêm hoa</button>
+
+<hr>
+
+<div class="grid" id="flowerList"></div>
+
+<button onclick="save()">💾 Lưu hoa đã chọn</button>
+
+</div>
+
+<h2>📊 Bảng kết quả</h2>
+
+<table id="table">
+<tr>
+    <th>Tên</th>
+    <th>Hoa</th>
+</tr>
+</table>
+
+<script>
+
+let flowers = [];
+let data = {};
+
+// render
+function renderList() {
+    let html = "";
+    flowers.forEach((f, i) => {
+        html += `
+        <div class="card">
+            <span class="delete" onclick="deleteFlower(${i})">✖</span>
+            <input type="checkbox" value="${i}">
+            <img src="${f.img}">
+            <div>${f.name}</div>
+        </div>
+        `;
+    });
+    document.getElementById("flowerList").innerHTML = html;
+}
+
+// thêm hoa
+function addFlower() {
+    let name = document.getElementById("newName").value;
+    let file = document.getElementById("newImg").files[0];
+
+    if (!name || !file) {
+        alert("Nhập đủ tên + ảnh!");
+        return;
+    }
+
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        flowers.push({
+            name: name,
+            img: e.target.result
+        });
+
+        renderList();
+
+        // clear
+        document.getElementById("newName").value = "";
+        document.getElementById("newImg").value = "";
+    };
+
+    reader.readAsDataURL(file);
+}
+
+// xóa hoa
+function deleteFlower(index) {
+    flowers.splice(index, 1);
+    renderList();
+}
+
+// lưu
+function save() {
+    let acc = document.getElementById("acc").value;
+    let checked = document.querySelectorAll("input[type=checkbox]:checked");
+
+    if (!acc) {
+        alert("Nhập ACC!");
+        return;
+    }
+
+    if (checked.length === 0) {
+        alert("Chọn hoa!");
+        return;
+    }
+
+    if (!data[acc]) data[acc] = [];
+
+    checked.forEach(c => {
+        data[acc].push(flowers[c.value]);
+    });
+
+    renderTable();
+
+    checked.forEach(c => c.checked = false);
+}
+
+// render table
+function renderTable() {
+    let table = document.getElementById("table");
+
+    table.innerHTML = `
+    <tr>
+        <th>Tên</th>
+        <th>Hoa</th>
+    </tr>
+    `;
+
+    for (let acc in data) {
+        let row = table.insertRow();
+
+        row.insertCell(0).innerHTML = acc;
+
+        let html = "";
+        data[acc].forEach(f => {
+            html += `
+            <div class="flower-item">
+                <img src="${f.img}">
+                <div>${f.name}</div>
+            </div>
+            `;
+        });
+
+        row.insertCell(1).innerHTML = html;
+    }
+}
+
+</script>
+
+</body>
+</html>
