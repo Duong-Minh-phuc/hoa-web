@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Upload hoa</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f3f0f7;
+    padding: 20px;
+}
+
+.container {
+    background: #e9dff3;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+input {
+    padding: 10px;
+    margin: 5px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.card {
+    background: #d8c8ea;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.card img {
+    width: 100%;
+    max-height: 100px;
+    object-fit: cover;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📱 Nhập hoa (hỗ trợ điện thoại)</h2>
+
+<input type="text" id="name" placeholder="Tên hoa">
+
+<br>
+
+<!-- MOBILE + PC -->
+<input type="file" id="image" accept="image/*" capture="environment">
+
+<br>
+
+<button onclick="addFlower()">Thêm hoa</button>
+
+<hr>
+
+<div class="grid" id="list"></div>
+
+</div>
+
+<script>
+
+let flowers = [];
+
+function addFlower() {
+    let name = document.getElementById("name").value;
+    let fileInput = document.getElementById("image");
+    let file = fileInput.files[0];
+
+    if (!name || !file) {
+        alert("Nhập tên + chọn ảnh!");
+        return;
+    }
+
+    // đọc ảnh (chạy được cả mobile + laptop)
+    let reader = new FileReader();
+
+    reader.onload = function(e) {
+        flowers.push({
+            name: name,
+            img: e.target.result
+        });
+
+        render();
+
+        // reset
+        document.getElementById("name").value = "";
+        fileInput.value = "";
+    };
+
+    reader.readAsDataURL(file);
+}
+
+function render() {
+    let html = "";
+
+    flowers.forEach(f => {
+        html += `
+        <div class="card">
+            <img src="${f.img}">
+            <div>${f.name}</div>
+        </div>
+        `;
+    });
+
+    document.getElementById("list").innerHTML = html;
+}
+
+</script>
+
+</body>
+</html>
